@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRYC Week 12 · Geometry Facts Quiz</title>
+<style>
+  :root{
+    --orange:#F26B21; --orange-soft:#FDE6D8; --ink:#1F2430; --muted:#5E6573;
+    --bg:#FFF8F3; --card:#FFFFFF; --line:#EADFD6;
+    --good:#1E8E5A; --good-soft:#E3F5EC; --bad:#C2372D; --bad-soft:#FBE7E5;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+  .stripe{height:10px;background:linear-gradient(90deg,#F26B21 0 25%,#F79A55 25% 50%,#FBC08F 50% 75%,#3A2D5C 75%)}
+  main{max-width:720px;margin:0 auto;padding:24px 18px 60px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .logo{font-weight:800;font-size:1rem;color:var(--orange);border:3px solid var(--orange);border-radius:50%;width:58px;height:58px;display:grid;place-items:center;flex:none;letter-spacing:-.5px}
+  h1{font-size:1.45rem;margin:0}
+  .sub{color:var(--muted);margin:0;font-size:.95rem}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+  label{font-weight:600;display:block;margin-bottom:6px}
+  input[type=text]{width:100%;padding:12px 14px;font-size:1rem;border:2px solid var(--line);border-radius:10px}
+  input[type=text]:focus{outline:none;border-color:var(--orange)}
+  button{font:inherit;cursor:pointer}
+  .btn{background:var(--orange);color:#fff;border:none;border-radius:10px;padding:12px 22px;font-weight:700;font-size:1rem}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn.ghost{background:transparent;color:var(--orange);border:2px solid var(--orange)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+  ul.info{padding-left:20px;color:var(--muted);margin:14px 0}
+  .progress{height:8px;background:var(--orange-soft);border-radius:99px;overflow:hidden;margin-bottom:8px}
+  .progress > div{height:100%;background:var(--orange);width:0;transition:width .3s}
+  .meta{display:flex;justify-content:space-between;color:var(--muted);font-size:.9rem;margin-bottom:14px}
+  .topic{display:inline-block;background:var(--orange-soft);color:#A6450F;font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:99px;margin-bottom:10px}
+  .q{font-size:1.15rem;font-weight:600;margin:0 0 16px}
+  .opts{display:grid;gap:10px}
+  .opt{text-align:left;background:#fff;border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-size:1rem;display:flex;gap:12px;align-items:flex-start;color:var(--ink)}
+  .opt:hover:not(:disabled){border-color:var(--orange)}
+  .opt .letter{font-weight:800;color:var(--orange);min-width:18px}
+  .opt.correct{border-color:var(--good);background:var(--good-soft)}
+  .opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+  .opt:disabled{cursor:default}
+  .feedback{margin-top:16px;padding:14px;border-radius:12px;font-size:.97rem}
+  .feedback.good{background:var(--good-soft);border-left:5px solid var(--good)}
+  .feedback.bad{background:var(--bad-soft);border-left:5px solid var(--bad)}
+  .score{font-size:3rem;font-weight:800;color:var(--orange);margin:6px 0}
+  .review{margin-top:20px}
+  .review details{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:8px;background:#fff}
+  .review summary{cursor:pointer;font-weight:600}
+  .review .x{color:var(--bad)} .review .ok{color:var(--good)}
+  .topics{display:grid;gap:6px;margin-top:12px}
+  .topics div{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line);padding:4px 0}
+  .stamp{font-size:.85rem;color:var(--muted);margin-top:6px}
+  .hidden{display:none}
+  sup{font-size:.7em}
+</style>
+</head>
+<body>
+<div class="stripe"></div>
+<main>
+  <header>
+    <div class="logo">BRYC</div>
+    <div>
+      <h1>Week 12 · Geometry Facts Quiz</h1>
+      <p class="sub">11th Grade UPLT · Angles, Polygons &amp; Triangles</p>
+    </div>
+  </header>
+
+  <!-- START -->
+  <section id="start" class="card">
+    <label for="name">Your first and last name</label>
+    <input id="name" type="text" placeholder="e.g. Jordan Smith" autocomplete="name">
+    <ul class="info">
+      <li><strong id="qcount"></strong> multiple-choice questions on the definitions and facts from tonight's lesson.</li>
+      <li>You'll see right away if you got each one right, plus a short explanation.</li>
+      <li>No calculator needed. These are the facts you should have memorized!</li>
+      <li>At the end, screenshot your score and show your PM or Mentor.</li>
+    </ul>
+    <div class="row"><button id="startBtn" class="btn" disabled>Start quiz</button></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="card hidden">
+    <div class="progress"><div id="bar"></div></div>
+    <div class="meta"><span id="counter"></span><span id="running"></span></div>
+    <span id="topic" class="topic"></span>
+    <p id="question" class="q"></p>
+    <div id="opts" class="opts"></div>
+    <div id="feedback" class="feedback hidden"></div>
+    <div class="row"><button id="nextBtn" class="btn hidden">Next →</button></div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results" class="card hidden">
+    <p id="who" style="margin:0;font-weight:600"></p>
+    <div class="score" id="final"></div>
+    <p id="msg" style="margin:0 0 6px"></p>
+    <p class="stamp" id="stamp"></p>
+    <h3 style="margin:22px 0 4px">Score by topic</h3>
+    <div id="topics" class="topics"></div>
+    <div class="row">
+      <button id="retryMissed" class="btn">Retry the ones I missed</button>
+      <button id="restart" class="btn ghost">Retake full quiz</button>
+    </div>
+    <div class="review">
+      <h3 style="margin:24px 0 8px">Review your answers</h3>
+      <div id="reviewList"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ===== QUESTION BANK =====
+   Each question: topic, q, options (first one listed = correct answer; options are shuffled on screen), why.
+   To add a question, copy one block and edit it. */
+const BANK = [
+  // ---- Angle definitions
+  {topic:"Angle definitions", q:"Supplementary angles add up to how many degrees?",
+   options:["180°","90°","360°","270°"],
+   why:"Supplementary angles add up to 180°. Together they make a straight line (a half circle)."},
+  {topic:"Angle definitions", q:"Complementary angles add up to how many degrees?",
+   options:["90°","180°","45°","360°"],
+   why:"Complementary angles add up to 90°. Together they make a right angle."},
+  {topic:"Angle definitions", q:"What does <em>congruent</em> mean?",
+   options:["Equal in length or degree","Proportional, but not equal","Adding up to 180°","Parallel to each other"],
+   why:"Congruent means exactly equal: the same length for sides, or the same measure for angles."},
+  {topic:"Angle definitions", q:"Angle A measures 35°. What is the measure of an angle that is <strong>complementary</strong> to it?",
+   options:["55°","145°","35°","65°"],
+   why:"Complementary angles add to 90°, so 90° − 35° = 55°."},
+  {topic:"Angle definitions", q:"Angle B measures 120°. What is the measure of an angle that is <strong>supplementary</strong> to it?",
+   options:["60°","30°","240°","120°"],
+   why:"Supplementary angles add to 180°, so 180° − 120° = 60°."},
+
+  // ---- Shapes & terms
+  {topic:"Shapes & terms", q:"An <strong>isosceles</strong> triangle has…",
+   options:["Two equal sides, and the angles opposite those sides are also equal","All three sides equal","No equal sides","One 90° angle and two 45° angles only"],
+   why:"An isosceles triangle has two sides of equal length. The angles across from those equal sides are also equal."},
+  {topic:"Shapes & terms", q:"In an <strong>equilateral</strong> triangle, what is true?",
+   options:["All sides and all angles are the same","Only two sides are the same","It always has a 90° angle","All angles are different"],
+   why:"Equilateral means every side is equal and every angle is equal (each is 60°)."},
+  {topic:"Shapes & terms", q:"Each angle in an equilateral triangle measures…",
+   options:["60°","90°","45°","180°"],
+   why:"A triangle's angles add to 180°, and all three are equal: 180° ÷ 3 = 60°."},
+  {topic:"Shapes & terms", q:"A <strong>trapezoid</strong> is a quadrilateral with…",
+   options:["Only one pair of parallel sides","Two pairs of parallel sides","Four equal sides","Four right angles"],
+   why:"A trapezoid has exactly one pair of parallel sides."},
+  {topic:"Shapes & terms", q:"A <strong>rhombus</strong> is…",
+   options:["A parallelogram with all sides equal","A quadrilateral with only one pair of parallel sides","A triangle with two equal sides","A shape with four right angles but unequal sides"],
+   why:"A rhombus is a parallelogram whose four sides are all the same length."},
+  {topic:"Shapes & terms", q:"A <strong>right triangle</strong> has…",
+   options:["One angle that measures 90°","Three angles that measure 60°","Two angles that measure 90°","No angles less than 90°"],
+   why:"A right (right-angled) triangle has exactly one 90° angle."},
+
+  // ---- Polygons
+  {topic:"Polygon angle sums", q:"The interior angles of a <strong>triangle</strong> add up to…",
+   options:["180°","360°","90°","540°"],
+   why:"Every triangle's interior angles add up to 180°."},
+  {topic:"Polygon angle sums", q:"The interior angles of a <strong>quadrilateral</strong> (4 sides) add up to…",
+   options:["360°","180°","540°","720°"],
+   why:"Quadrilateral: 180° + 180° = 360°."},
+  {topic:"Polygon angle sums", q:"The interior angles of a <strong>pentagon</strong> (5 sides) add up to…",
+   options:["540°","360°","720°","480°"],
+   why:"Pentagon: 360° + 180° = 540°."},
+  {topic:"Polygon angle sums", q:"The interior angles of a <strong>hexagon</strong> (6 sides) add up to…",
+   options:["720°","540°","600°","1080°"],
+   why:"Hexagon: 540° + 180° = 720°."},
+  {topic:"Polygon angle sums", q:"Starting from a triangle, what happens to the sum of the interior angles each time you add one more side?",
+   options:["It increases by 180°","It increases by 90°","It increases by 360°","It stays the same"],
+   why:"Each added side adds 180°. The formula is (number of sides − 2) × 180°."},
+  {topic:"Polygon angle sums", q:"An <strong>exterior angle</strong> of a triangle is always equal to…",
+   options:["The sum of the two interior angles farthest from it","The interior angle right next to it","180° minus the sum of the other two interior angles","Half of the opposite interior angle"],
+   why:"An exterior angle equals the sum of the two remote (farthest) interior angles."},
+
+  // ---- Lines & angles
+  {topic:"Lines & transversals", q:"When two lines cross, the angles directly <strong>across from each other</strong> are called vertical (opposite) angles. They are always…",
+   options:["Equal","Supplementary","Complementary","Right angles"],
+   why:"Vertical/opposite angles are always equal."},
+  {topic:"Lines & transversals", q:"<strong>Corresponding angles</strong> are angles in the same position when a transversal crosses parallel lines. They are always…",
+   options:["Equal","Supplementary","Complementary","Different"],
+   why:"When a transversal crosses parallel lines, corresponding angles are always equal."},
+  {topic:"Lines & transversals", q:"A transversal crosses two lines that are <strong>NOT</strong> parallel. Which angles are you guaranteed to know are equal?",
+   options:["Only the vertical (opposite) angles","Corresponding angles","All eight angles","Alternate interior angles"],
+   why:"When the lines are not parallel, only vertical angles can be found. Corresponding angles exist only with parallel lines."},
+  {topic:"Lines & transversals", q:"Two angles sit side by side on a straight line. What do they add up to?",
+   options:["180°","90°","360°","They are equal"],
+   why:"Angles on a straight line are supplementary: they add up to 180°."},
+  {topic:"Lines & transversals", q:"A transversal crosses two parallel lines and one of the angles is 55°. Every one of the 8 angles is either…",
+   options:["55° or 125°","55° or 35°","55° or 90°","55° or 145°"],
+   why:"With parallel lines, each angle equals 55° or is supplementary to it: 180° − 55° = 125°."},
+
+  // ---- Triangles
+  {topic:"Congruent & similar triangles", q:"<strong>Congruent</strong> triangles have…",
+   options:["The same three angles AND the same three side lengths","The same angles but different side lengths","Proportional sides but different angles","The same perimeter only"],
+   why:"Congruent triangles are exactly identical: same angles and same side lengths."},
+  {topic:"Congruent & similar triangles", q:"<strong>Similar</strong> triangles have…",
+   options:["Identical angles, with sides that are proportional","Identical sides, with different angles","The same area","No angles in common"],
+   why:"Similar triangles have the same angles. Their sides are proportional, so one is usually a scaled-up version of the other."},
+  {topic:"Congruent & similar triangles", q:"Two triangles are similar, and each side of the bigger triangle is 3 times the matching side of the smaller one. A side of the small triangle is 4. What is the matching side on the big triangle?",
+   options:["12","7","4","1⅓"],
+   why:"Similar triangles' sides are proportional: 4 × 3 = 12."},
+
+  // ---- Special right triangles
+  {topic:"Special right triangles", q:"In a <strong>30-60-90</strong> triangle, the sides are in what ratio (short leg : long leg : hypotenuse)?",
+   options:["x : x√3 : 2x","x : x : x√2","x : 2x : x√3","1 : 2 : 3"],
+   why:"30-60-90 sides: x (opposite 30°), x√3 (opposite 60°), 2x (hypotenuse, opposite 90°)."},
+  {topic:"Special right triangles", q:"In a 30-60-90 triangle, which side is opposite the <strong>60°</strong> angle?",
+   options:["x√3","x","2x","x√2"],
+   why:"The side opposite 60° is the longer leg, x√3."},
+  {topic:"Special right triangles", q:"In a 30-60-90 triangle, the side opposite the <strong>30°</strong> angle is 5. How long is the hypotenuse?",
+   options:["10","5√3","5√2","15"],
+   why:"The hypotenuse is always 2x. Since x = 5, the hypotenuse is 10."},
+  {topic:"Special right triangles", q:"In a <strong>45-45-90</strong> triangle, the sides are in what ratio (leg : leg : hypotenuse)?",
+   options:["x : x : x√2","x : x√3 : 2x","x : 2x : 3x","x : x : 2x"],
+   why:"A 45-45-90 triangle has two equal legs (x) and a hypotenuse of x√2."},
+  {topic:"Special right triangles", q:"A 45-45-90 triangle has legs of length 7. What is the hypotenuse?",
+   options:["7√2","14","7√3","49"],
+   why:"Hypotenuse = x√2, so 7√2."},
+
+  // ---- Right triangles
+  {topic:"Right triangles & trig", q:"Which equation is the <strong>Pythagorean theorem</strong> (c = hypotenuse)?",
+   options:["a² + b² = c²","a + b = c","a² − b² = c","a² + c² = b²"],
+   why:"In a right triangle, leg² + leg² = hypotenuse²: a² + b² = c²."},
+  {topic:"Right triangles & trig", q:"In a right triangle, the <strong>hypotenuse</strong> is…",
+   options:["The side opposite the right angle (the longest side)","The shortest side","The side next to the angle you're working with","Either of the two legs"],
+   why:"The hypotenuse sits across from the 90° angle and is always the longest side."},
+  {topic:"Right triangles & trig", q:"sin(x) = ?",
+   options:["opposite ÷ hypotenuse","adjacent ÷ hypotenuse","opposite ÷ adjacent","hypotenuse ÷ opposite"],
+   why:"SOH: Sine = Opposite / Hypotenuse."},
+  {topic:"Right triangles & trig", q:"cos(x) = ?",
+   options:["adjacent ÷ hypotenuse","opposite ÷ hypotenuse","opposite ÷ adjacent","adjacent ÷ opposite"],
+   why:"CAH: Cosine = Adjacent / Hypotenuse."},
+  {topic:"Right triangles & trig", q:"tan(x) = ?",
+   options:["opposite ÷ adjacent","adjacent ÷ opposite","opposite ÷ hypotenuse","adjacent ÷ hypotenuse"],
+   why:"TOA: Tangent = Opposite / Adjacent."},
+  {topic:"Right triangles & trig", q:"Which memory trick helps you remember the three trig ratios?",
+   options:["SOH-CAH-TOA","PEMDAS","FOIL","SLOPE = RISE/RUN"],
+   why:"SOH-CAH-TOA: Sin = O/H, Cos = A/H, Tan = O/A."},
+
+  // ---- ACT pacing
+  {topic:"ACT Math pacing", q:"How many questions and how much time are on the ACT Math test?",
+   options:["45 questions in 50 minutes","60 questions in 60 minutes","40 questions in 35 minutes","50 questions in 45 minutes"],
+   why:"ACT Math: 45 questions, 50 minutes. The questions get harder as you go."}
+];
+
+/* ===== APP ===== */
+const $ = id => document.getElementById(id);
+let deck = [], idx = 0, answers = [], fellow = "";
+
+$("qcount").textContent = BANK.length;
+$("name").addEventListener("input", e => $("startBtn").disabled = e.target.value.trim().length < 2);
+$("name").addEventListener("keydown", e => { if(e.key==="Enter" && !$("startBtn").disabled) start(BANK); });
+$("startBtn").onclick = () => start(BANK);
+$("nextBtn").onclick = next;
+$("restart").onclick = () => start(BANK);
+$("retryMissed").onclick = () => start(answers.filter(a => !a.correct).map(a => a.item));
+
+function shuffle(a){ a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function start(items){
+  fellow = $("name").value.trim();
+  deck = shuffle(items).map(it => ({item:it, opts:shuffle(it.options)}));
+  idx = 0; answers = [];
+  show("quiz"); render();
+}
+function show(id){ ["start","quiz","results"].forEach(s => $(s).classList.toggle("hidden", s!==id)); window.scrollTo(0,0); }
+
+function render(){
+  const {item, opts} = deck[idx];
+  $("bar").style.width = (idx/deck.length*100)+"%";
+  $("counter").textContent = `Question ${idx+1} of ${deck.length}`;
+  $("running").textContent = `Correct so far: ${answers.filter(a=>a.correct).length}`;
+  $("topic").textContent = item.topic;
+  $("question").innerHTML = item.q;
+  $("feedback").className = "feedback hidden";
+  $("nextBtn").classList.add("hidden");
+  const box = $("opts"); box.innerHTML = "";
+  opts.forEach((o,i) => {
+    const b = document.createElement("button");
+    b.className = "opt";
+    b.innerHTML = `<span class="letter">${"ABCD"[i]}</span><span>${o}</span>`;
+    b.onclick = () => choose(b, o);
+    box.appendChild(b);
+  });
+}
+
+function choose(btn, choice){
+  const {item} = deck[idx];
+  const right = item.options[0];
+  const correct = choice === right;
+  answers.push({item, choice, correct});
+  [...$("opts").children].forEach(b => {
+    b.disabled = true;
+    const txt = b.children[1].innerHTML;
+    if(txt === right) b.classList.add("correct");
+  });
+  if(!correct) btn.classList.add("wrong");
+  const fb = $("feedback");
+  fb.className = "feedback " + (correct ? "good" : "bad");
+  fb.innerHTML = (correct ? "<strong>✓ Correct!</strong> " : `<strong>✗ Not quite.</strong> The answer is <strong>${right}</strong>. `) + item.why;
+  $("running").textContent = `Correct so far: ${answers.filter(a=>a.correct).length}`;
+  $("nextBtn").textContent = idx === deck.length-1 ? "See my score →" : "Next →";
+  $("nextBtn").classList.remove("hidden");
+  $("nextBtn").focus();
+}
+
+function next(){ idx++; if(idx < deck.length) render(); else finish(); }
+
+function finish(){
+  const n = answers.filter(a=>a.correct).length, total = answers.length, pct = Math.round(n/total*100);
+  $("who").textContent = fellow;
+  $("final").textContent = `${n}/${total} · ${pct}%`;
+  $("msg").textContent = pct===100 ? "Perfect score! You've got these facts locked in. 🔥"
+    : pct>=80 ? "Great work! Review the few you missed and you'll have it."
+    : pct>=60 ? "Good start. Go back over pages 2–8 of your handout and retry the ones you missed."
+    : "Keep going! Review your Cornell notes from tonight, then retry the ones you missed.";
+  $("stamp").textContent = "Completed " + new Date().toLocaleString();
+  // by topic
+  const t = {};
+  answers.forEach(a => { t[a.item.topic] ??= [0,0]; t[a.item.topic][1]++; if(a.correct) t[a.item.topic][0]++; });
+  $("topics").innerHTML = Object.entries(t).map(([k,[c,tt]]) =>
+    `<div><span>${k}</span><strong class="${c===tt?'ok':'x'}" style="color:${c===tt?'var(--good)':'var(--bad)'}">${c}/${tt}</strong></div>`).join("");
+  // review
+  $("reviewList").innerHTML = answers.map((a,i) => `
+    <details ${a.correct?"":"open"}>
+      <summary><span class="${a.correct?'ok':'x'}">${a.correct?'✓':'✗'}</span> ${i+1}. ${a.item.q}</summary>
+      <p style="margin:8px 0 4px">Your answer: <strong>${a.choice}</strong></p>
+      ${a.correct?"":`<p style="margin:4px 0">Correct answer: <strong>${a.item.options[0]}</strong></p>`}
+      <p style="margin:4px 0;color:var(--muted)">${a.item.why}</p>
+    </details>`).join("");
+  $("retryMissed").classList.toggle("hidden", n===total);
+  $("bar").style.width = "100%";
+  show("results");
+}
+</script>
+</body>
+</html>
